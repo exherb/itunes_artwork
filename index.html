@@ -41,13 +41,13 @@
                 <tr ng-repeat="results_in_row in results">
                     <td ng-repeat="result in results_in_row">
                         <a href="{{getArtworkUrl(result)}}" data-lightbox="artwork">
-                            <img width="100px" height="100px" ng-src="{{result.artworkUrl100}}"></td>
+                            <img style="border: 1px solid #cccccc;" width="100px" height="100px" ng-src="{{result.artworkUrl100}}"></td>
                         </a>
                     </td>
                 </tr>
             </tbody>
         </table>
-        <p style="margin-top:200px;width:100%;text-align:center;"><a href="https://github.com/exherb/itunes_artwork">@github</a></p>
+        <p style="margin-top:100px;width:100%;text-align:center;"><a href="https://github.com/exherb/itunes_artwork">@github</a></p>
     </div>
     <script type="text/javascript" src="http://cdn.staticfile.org/jquery/2.1.0/jquery.min.js"></script>
     <script type="text/javascript" src="http://cdn.staticfile.org/lightbox/2.6/js/lightbox.min.js"></script>
