@@ -60,6 +60,7 @@
             $scope.loading = false;
             $scope.search = function() {
                 if($scope.expression.length == 0) {
+                    $scope.results = [];
                     return ;
                 }
                 var termWithCountry = $scope.expression.split(':')
