@@ -2,8 +2,7 @@
 <html lang="zhCN" ng-app="app">
 <head>
     <title>iTunes Artwork</title>
-    <link rel="stylesheet" type="text/css" href="http://cdn.staticfile.org/lightbox/2.6/css/lightbox.css">
-    <link rel="stylesheet" type="text/css" href="http://cdn.staticfile.org/font-awesome/4.0.3/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="http://cdn.staticfile.org/fluidbox/1.4.0/css/fluidbox.css">
     <style type="text/css">
         a {
             text-decoration: none;
@@ -29,7 +28,7 @@
     <div class="wrapper" ng-controller="ArtworkListCtrl">
         <h1 id="title">iTunes Artwork</h1>
         <form ng-submit="search()">
-            <input id="expression" type="text" ng-model="expression" placeholder="关键词[:hk|tw|us|jp]" autocomplete="off" autofocus />
+            <input id="expression" type="text" ng-model="expression" placeholder="[{{types.join('|')}}:]关键词[:us|hk|tw|jp]" autocomplete="off" autofocus />
         </form>
         <table style="width: 100%;">
             <tbody>
@@ -40,7 +39,7 @@
                 </tr>
                 <tr ng-repeat="results_in_row in results">
                     <td ng-repeat="result in results_in_row">
-                        <a href="{{getArtworkUrl(result)}}" data-lightbox="artwork">
+                        <a href="{{getArtworkUrl(result)}}" target="_blank">
                             <img style="border: 1px solid #cccccc;" width="100px" height="100px" ng-src="{{result.artworkUrl100}}"></td>
                         </a>
                     </td>
@@ -49,12 +48,17 @@
         </table>
         <p style="margin-top:100px;width:100%;text-align:center;"><a href="https://github.com/exherb/itunes_artwork">@github</a></p>
     </div>
-    <script type="text/javascript" src="http://cdn.staticfile.org/jquery/2.1.0/jquery.min.js"></script>
-    <script type="text/javascript" src="http://cdn.staticfile.org/lightbox/2.6/js/lightbox.min.js"></script>
     <script type="text/javascript" src="http://cdn.staticfile.org/angular.js/1.2.0rc3/angular.min.js"></script>
     <script type="text/javascript">
         var controllers = angular.module('controllers', []);
         controllers.controller('ArtworkListCtrl', ['$scope', '$http', function($scope, $http) {
+            var typeWithQuerys = {"album": "media=music&entity=album",
+                                  "app": "media=software",
+                                  "podcast": "media=podcast&entity=podcast",
+                                  "movie": "media=movie&entity=movie",
+                                  "tvshow": "media=tvShow",
+                                  "ebook": "media=ebook&entity=ebook"}
+            $scope.types = Object.keys(typeWithQuerys)
             $scope.getArtworkUrl = function(result) {
                 return result.artworkUrl100.replace('100x100', '600x600');
             };
@@ -63,15 +67,23 @@
                 if($scope.expression.length == 0) {
                     $scope.results = [];
                     return ;
-                }
-                var termWithCountry = $scope.expression.split(':')
-                var country = 'hk';
-                if(termWithCountry.length > 1) {
-                    country = termWithCountry[termWithCountry.length-1];
-                    termWithCountry.splice(termWithCountry.length-1, 1);
-                }
-                term = termWithCountry.join(':')
-                var query = 'http://itunes.apple.com/search?media=music&entity=album&lang=zh_cn&term=' + term + '&country=' + country + '&callback=JSON_CALLBACK';
+                };
+                var country = 'us';
+                var type = 'album'
+                var termWithOptions = $scope.expression.split(':')
+                if (termWithOptions.length == 0) {
+                    return ;
+                };
+                if (termWithOptions[0] in typeWithQuerys) {
+                    type = typeWithQuerys[termWithOptions[0]]
+                    termWithOptions.splice(0, 1)
+                };
+                term = termWithOptions[0]
+                if(termWithOptions.length > 1) {
+                    country = termWithOptions[1];
+                };
+                term = termWithOptions[0]
+                var query = 'http://itunes.apple.com/search?' + type + '&lang=zh_cn&term=' + term + '&country=' + country + '&callback=JSON_CALLBACK';
                 $scope.loading = true;
                 $http.jsonp(query).
                     success(function(data, status){
